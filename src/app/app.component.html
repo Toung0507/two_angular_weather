@@ -1,22 +1,31 @@
 <div [ngClass]="weatherClass" class="weather-dashboard d-flex flex-column justify-content-center min-vh-100">
-  <div class="empty"></div>
+  <div class="empty">
+  </div>
   <div class="container py-3">
     <!-- 主標題 -->
     <div class="d-flex align-items-center justify-content-between mb-4">
-      <h1 class="fw-bold text-white">🌤 高雄市未來三天天氣預報</h1>
+      <h1 class="fw-bold text-white">🌤 {{nowCity}} 未來三天天氣預報</h1>
       <!-- 選擇器 -->
       <div class="row g-2">
         <!-- 區域選擇 -->
-        <div class="col-md-4">
-          <select class="form-select" (change)="changeArea($event)">
+        <div class="col-md-3">
+          <select class="form-select" (change)="changeCity($event)">
+            <option selected>請選擇縣市</option>
+            @for(area of cityList; track $index) {
+            <option [value]="area">{{area}}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" (change)="changeArea($event)" #areaSelect>
             <option selected>請選擇區域</option>
-            @for(area of cityArea; track $index) {
+            @for(area of regionData; track $index) {
             <option [value]="area">{{area}}</option>
             }
           </select>
         </div>
         <!-- 日期選擇 -->
-        <div class="col-md-4">
+        <div class="col-md-3">
           <select class="form-select" (change)="changeDay($event)" #daySelect>
             <option selected>請選擇日期</option>
             @for(day of allDay; track $index) {
@@ -25,7 +34,7 @@
           </select>
         </div>
         <!-- 時間選擇 -->
-        <div class="col-md-4">
+        <div class="col-md-3">
           <select class="form-select" (change)="changeTime($event)" #timeSelect>
             <option selected>請選擇時間</option>
             @for(time of allTime; track $index) {

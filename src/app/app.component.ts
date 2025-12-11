@@ -14,48 +14,48 @@ export class AppComponent {
   title = 'weatherApi';
   constructor(private httpService: HttpService) { }
 
-  url: string = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-D0047-065?Authorization=CWA-586EED3D-A84F-437E-9109-E4D418BC7A2D";
   weatherClass: string = '';           // 背景色彩
 
   // 抓到兩個的 select 去強制更改值
+  @ViewChild('areaSelect') areaSelect!: ElementRef<HTMLSelectElement>;
   @ViewChild('daySelect') daySelect!: ElementRef<HTMLSelectElement>;
   @ViewChild('timeSelect') timeSelect!: ElementRef<HTMLSelectElement>;
 
-  // 全資料儲存地
-  allWeatherData: Array<any> = [];     // res 回傳的全資料
-  nowAreaData: any = {};               // 目前處理的區域
-  allTimeData: Array<any> = [];        // 全部的時間資料-未切割前
-
-  // 列表儲存地
-  cityArea: Array<any> = [];           // 縣市區域
-  allDay: Array<any> = [];             // 全部的日期
-  allTime: Array<any> = [];            // 全部的小時
-
-  // 處利過程使用的變數
-  year: string = '';
-  hour!: number;
-  timeOfDay: string = '';
-  fullDateTime: string = '';          // 目前所要顯示的時間
-
-  // 主卡片
-  nowArea!: string;                    // 目前顯示區域
-  nowDay: any = '';                    // 目前顯示日期
-  nowTime: any = '';                   // 目前顯示小時
-  temperature: string = '';            // 溫度
-  feelingTemperature: string = '';     // 體感溫度
-  weatherPhenomena: string = '';       // 天氣現象
-  weatherIcon: string = '';            // 天氣的 icon
-  weatherDescription: Array<any> = []; // 天氣預報綜合描述
-
-  // 小卡片
-  hourChanceOfRain: string = '';       // 3小時降雨機率
-  relativeHumidity: string = '';       // 相對濕度
-  dewPointTemperature: string = '';    // 露點溫度
-  comfortIndex: string = '';           // 舒適度指數
-  windSpeed: string = '';              // 風速
-  windDirection: string = '';          // 風向
-
   // map 集合地
+  // 城市跟API對應
+  cityApiMap: Record<string, string> = {
+    // 北部
+    "基隆市": "F-D0047-049",
+    "臺北市": "F-D0047-061",
+    "新北市": "F-D0047-069",
+    "桃園市": "F-D0047-005",
+    "新竹市": "F-D0047-053",
+    "新竹縣": "F-D0047-009",
+
+    // 中部
+    "苗栗縣": "F-D0047-013",
+    "臺中市": "F-D0047-073",
+    "彰化縣": "F-D0047-017",
+    "南投縣": "F-D0047-021",
+    "雲林縣": "F-D0047-025",
+
+    // 南部
+    "嘉義市": "F-D0047-057",
+    "嘉義縣": "F-D0047-029",
+    "臺南市": "F-D0047-077",
+    "高雄市": "F-D0047-065",
+    "屏東縣": "F-D0047-033",
+
+    // 東部
+    "宜蘭縣": "F-D0047-001",
+    "花蓮縣": "F-D0047-041",
+    "臺東縣": "F-D0047-037",
+
+    // 離島
+    "澎湖縣": "F-D0047-045",
+    "金門縣": "F-D0047-085",
+    "連江縣": "F-D0047-081"
+  };
   // 天氣 Icon Map
   weatherIconMap: any = {
     // 白天
@@ -67,6 +67,7 @@ export class AppComponent {
       "多雲時陰": "mostly_cloudy_day.svg",
       "陰時多雲": "overcast_mostly_cloudy_day.svg",
       "陰": "overcast_day.svg",
+      "有雨": "cloudy_shower_day.svg",
       "短暫雨": "cloudy_shower_day.svg",
       "多雲時陰短暫雨": "cloudy_overcast_shower_day.svg",
       "陰時多雲短暫雨": "overcast_cloudy_shower_day.svg",
@@ -82,6 +83,7 @@ export class AppComponent {
       "多雲時陰": "mostly_cloudy_night.svg",
       "陰時多雲": "overcast_mostly_cloudy_night.svg",
       "陰": "overcast_night.svg",
+      "有雨": "shower_night.svg",
       "短暫雨": "shower_night.svg",
       "多雲時陰短暫雨": "cloudy_overcast_shower_night.svg",
       "陰時多雲短暫雨": "overcast_cloudy_shower_night.svg",
@@ -103,18 +105,72 @@ export class AppComponent {
     windDirection: '風向'
   };
 
+  // 全資料儲存地
+  allWeatherData: Array<any> = [];     // res 回傳的全資料
+  nowAreaData: any = {};               // 目前處理的區域
+  allTimeData: Array<any> = [];        // 全部的時間資料-未切割前
+
+  // 列表儲存地
+  cityList = Object.keys(this.cityApiMap); // 全縣市
+  regionData: Array<any> = [];           // 各縣市的區域
+  allDay: Array<any> = [];             // 全部的日期
+  allTime: Array<any> = [];            // 全部的小時
+
+  // 處利過程使用的變數
+  year: string = '';
+  hour!: number;
+  timeOfDay: string = '';
+  fullDateTime: string = '';          // 目前所要顯示的時間
+
+  // 主卡片
+  nowCity: string = '高雄市';           // 目前顯示縣市
+  nowArea!: string;                    // 目前顯示區域
+  nowDay: any = '';                    // 目前顯示日期
+  nowTime: any = '';                   // 目前顯示小時
+  temperature: string = '';            // 溫度
+  feelingTemperature: string = '';     // 體感溫度
+  weatherPhenomena: string = '';       // 天氣現象
+  weatherIcon: string = '';            // 天氣的 icon
+  weatherDescription: Array<any> = []; // 天氣預報綜合描述
+
+  // 小卡片
+  hourChanceOfRain: string = '';       // 3小時降雨機率
+  relativeHumidity: string = '';       // 相對濕度
+  dewPointTemperature: string = '';    // 露點溫度
+  comfortIndex: string = '';           // 舒適度指數
+  windSpeed: string = '';              // 風速
+  windDirection: string = '';          // 風向
+
   // 初始化
   ngOnInit(): void {
-    this.httpService.getApi(this.url).subscribe((res: any) => {
-      this.allWeatherData = res.records.Locations[0].Location;
-      for (let data of this.allWeatherData) {
-        this.cityArea.push(data.LocationName);  // 儲存全部區域的值
-      }
+    this.getCityWeather(this.nowCity);
+  }
 
-      // 預設區域為區域列表的第一項
-      this.nowArea = this.cityArea[0];
+  // 串起所需要的 api
+  getCityApiUrl(cityName: string): string {
+    const apiCode = this.cityApiMap[cityName];
+    return `https://opendata.cwa.gov.tw/api/v1/rest/datastore/${apiCode}?Authorization=CWA-586EED3D-A84F-437E-9109-E4D418BC7A2D`;
+  }
+
+  // 實際送出請求得到回傳的 Api
+  getCityWeather(cityName: string) {
+    const url = this.getCityApiUrl(cityName);
+    this.httpService.getApi(url).subscribe((res: any) => {
+      this.allWeatherData = res.records.Locations[0].Location;
+      this.regionData = this.allWeatherData.map((d: any) => d.LocationName);
+
+      this.nowArea = this.regionData[0];
       this.updateAreaData(this.nowArea);
     });
+  }
+
+  // 修正縣市
+  changeCity(event: any) {
+    this.nowCity = event.target.value;
+    this.areaSelect.nativeElement.value = "請選擇區域";
+    this.daySelect.nativeElement.value = "請選擇日期";
+    this.timeSelect.nativeElement.value = "請選擇時間";
+    this.getCityWeather(this.nowCity);
   }
 
   // 修正區域
@@ -197,6 +253,7 @@ export class AppComponent {
       const elementName = this.weatherMap[key];
       // 找出每個值得相對應 Time 資料
       const element = this.nowAreaData.find((elementData: any) => elementData.ElementName === elementName);
+      console.log(element);
 
       // 這三筆是用StartTime去比對
       const useStartTimeKeys = ["hourChanceOfRain", "weatherDescription", "weatherPhenomena"];
@@ -204,6 +261,7 @@ export class AppComponent {
       const checkKey = useStartTimeKeys.includes(key) ? "StartTime" : "DataTime";
       // 找出對應時間的資料
       const timeData = element.Time.find((timeData: any) => timeData[checkKey] === this.fullDateTime);
+      console.log(timeData);
 
       // 根據欄位不同，取不同屬性
       switch (key) {
