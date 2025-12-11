@@ -9,6 +9,7 @@ export class HttpService {
   constructor(private http: HttpClient) { }
 
   getApi(url: string) {
-    this.http.get(url);
+    // 一定要加 return
+    return this.http.get(url);
   }
 }

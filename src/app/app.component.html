@@ -1,1 +1,99 @@
-<router-outlet />
+<div [ngClass]="weatherClass" class="weather-dashboard d-flex flex-column justify-content-center min-vh-100">
+  <div class="empty"></div>
+  <div class="container py-3">
+    <!-- 主標題 -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h1 class="fw-bold text-white">🌤 高雄市未來三天天氣預報</h1>
+      <!-- 選擇器 -->
+      <div class="row g-2">
+        <!-- 區域選擇 -->
+        <div class="col-md-4">
+          <select class="form-select" (change)="changeArea($event)">
+            <option selected>請選擇區域</option>
+            @for(area of cityArea; track $index) {
+            <option [value]="area">{{area}}</option>
+            }
+          </select>
+        </div>
+        <!-- 日期選擇 -->
+        <div class="col-md-4">
+          <select class="form-select" (change)="changeDay($event)" #daySelect>
+            <option selected>請選擇日期</option>
+            @for(day of allDay; track $index) {
+            <option [value]="day">{{day}}</option>
+            }
+          </select>
+        </div>
+        <!-- 時間選擇 -->
+        <div class="col-md-4">
+          <select class="form-select" (change)="changeTime($event)" #timeSelect>
+            <option selected>請選擇時間</option>
+            @for(time of allTime; track $index) {
+            <option [value]="time">{{time}}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主卡片 + 小卡片左右分佈 -->
+    <div class="row g-2">
+      <!-- 左側主卡片 -->
+      <div class="col-md-5">
+        <div class="card text-center shadow-lg rounded-4">
+          <div class="card-header fs-3 fw-bold">
+            {{nowArea}} ｜ {{nowDay}} ｜ {{nowTime}}
+          </div>
+          <div class="card-body">
+            <h2 class="display-3 fw-bold text-primary">{{temperature}}°C</h2>
+            <p class="fs-5 text-secondary">體感溫度：{{feelingTemperature}}°C</p>
+            <img [src]="weatherIcon" alt={{weatherPhenomena}} class="weatherIcon img-fluid my-2 mx-auto d-block">
+            <h4 class="fw-bold">{{weatherPhenomena}}</h4>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右側小卡片 -->
+      <div class="col-md-7">
+        <div class="row g-2">
+          <div class="col-md-6">
+            <div class="card text-center shadow-sm rounded-3 p-3">
+              <p class="fw-bold fs-4">🌧 降雨機率<span class="update-icon">🔄</span></p>
+              <p class="fs-5 mb-0">{{hourChanceOfRain}}%</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card text-center shadow-sm rounded-3 p-3">
+              <p class="fw-bold fs-4">💧 相對濕度<span class="update-icon">🔄</span></p>
+              <p class="fs-5 mb-0">{{relativeHumidity}}</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card text-center shadow-sm rounded-3 p-3">
+              <p class="fw-bold fs-4">🌡 露點溫度<span class="update-icon">🔄</span></p>
+              <p class="fs-5 mb-0">{{dewPointTemperature}}°C</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card text-center shadow-sm rounded-3 p-3">
+              <p class="fw-bold fs-4">😊 舒適度<span class="update-icon">🔄</span></p>
+              <p class="fs-5 mb-0">{{comfortIndex}}</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card text-center shadow-sm rounded-3 p-3">
+              <p class="fw-bold fs-4">💨 風速<span class="update-icon">🔄</span></p>
+              <p class="fs-5 mb-0">{{windSpeed}} m/s</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card text-center shadow-sm rounded-3 p-3">
+              <p class="fw-bold fs-4">🧭 風向<span class="update-icon">🔄</span></p>
+              <p class="fs-5 mb-0">{{windDirection}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

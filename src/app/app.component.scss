@@ -1,0 +1,44 @@
+.weather-dashboard {
+
+  // 背景漸層保留
+  &.sunny {
+    background: linear-gradient(to bottom, #a1c4fd, #c2e9fb);
+  }
+
+  &.cloudy {
+    background: linear-gradient(to bottom, #d7d2cc, #304352);
+  }
+
+  &.rainy {
+    background: linear-gradient(to bottom, #667db6, #2c3e50);
+  }
+
+  &.night {
+    background: linear-gradient(to bottom, #654ea3, #000000);
+  }
+}
+
+.weatherIcon {
+  height: 95px;
+}
+
+/* 更新圖示動畫保留 */
+.update-icon {
+  opacity: 0;
+  margin-left: 5px;
+  animation: fadeIcon 0.6s ease;
+}
+
+@keyframes fadeIcon {
+  0% {
+    opacity: 1;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}

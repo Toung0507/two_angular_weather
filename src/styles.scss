@@ -1,1 +1,20 @@
-/* You can add global styles to this file, and also import other style files */
+// /* You can add global styles to this file, and also import other style files */
+// body {
+//   margin: 0;
+//   padding: 0;
+//   background-image: url('https://plus.unsplash.com/premium_photo-1725408013619-e490825f0d97?q=80&w=1169&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+//   background-size: cover;
+//   background-position: center;
+//   background-repeat: no-repeat;
+//   background-attachment: fixed; // 不會因為滾動，改變圖片的畫面
+// }
+
+// body::before {
+//   content: "";
+//   position: fixed;
+//   width: 100%;
+//   height: 100%;
+//   background: rgba(255, 255, 255, 0.432); // 透明度放在這邊當遮罩
+//   pointer-events: none; // 讓底下的資料可以被設定 hover 效果
+//   z-index: -1; // 權重比內容少一階，但比 body 高一階
+// }
