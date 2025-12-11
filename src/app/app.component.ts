@@ -128,8 +128,10 @@ export class AppComponent {
   // 修正日期
   changeDay(event: any) {
     this.nowDay = event.target.value;
-    this.getFullTime(this.nowDay);     // 更改日期時，需要重新取得時間列表
+    this.allTime = this.getFullTime(this.allTimeData, this.nowDay);
+    this.nowTime = this.allTime[0];
     this.timeSelect.nativeElement.value = "請選擇時間";
+    this.getFullNowTime();
   }
 
   // 修正時間
@@ -138,37 +140,24 @@ export class AppComponent {
     this.getFullNowTime();
   }
 
-  // 取出日期列表
-  getFullDay() {
-    this.allDay = [];
-    this.allTimeData.forEach((days: any) => {
-      let day = days.split("T")[0].slice(5);
-      if (!this.allDay.includes(day)) {     // 取出不重複的日期列表
-        this.allDay.push(day);
-      }
+  // 工具函式：取日期列表
+  private getFullDay(allTimeData: Array<any>): string[] { // 代表傳入的是一個陣列，回傳的時候會是一個字串陣列
+    const days: string[] = [];
+    allTimeData.forEach((times: any) => {
+      const day = times.split("T")[0].slice(5);
+      if (!days.includes(day)) days.push(day);
     });
-    this.nowDay = this.allDay[0];
-    // 以上取出日期列表後，設定顯示預設為第一筆
-    // 接著取出對應的時間列表
-    this.getFullTime(this.nowDay);
+    return days;
   }
 
-  // 取出時間列表
-  getFullTime(day: string) {
-    this.allTime = [];
-    this.allTimeData.forEach((days: any) => {
-      let day = days.split("T")[0].slice(5);
-      if (day == this.nowDay) {
-        let time = days.split("T")[1].slice(0, 5);
-        this.allTime.push(time);
-      }
-    });
-    this.nowTime = this.allTime[0];
-    // 以上取出時間列表後，設定顯示預設為第一筆
-    this.getFullNowTime();
+  // 工具函式：取時間列表
+  private getFullTime(allTimeData: Array<any>, day: string): string[] {   // 代表傳入的是一個陣列跟指定日期，回傳的時候會是一個字串陣列
+    return allTimeData
+      .filter((days: any) => days.split("T")[0].slice(5) === day)
+      .map((times: any) => times.split("T")[1].slice(0, 5));
   }
 
-  // 將日期組回來
+  // 將日期組回來 & 呼叫更新
   getFullNowTime() {
     this.fullDateTime = `${this.year}-${this.nowDay}T${this.nowTime}:00+08:00`;
     this.updateWeatherData();          // 顯示資料
@@ -176,29 +165,28 @@ export class AppComponent {
 
   // 更改區域內容
   updateAreaData(nowAreaName: string) {
-    this.allTimeData = [];
-    this.nowAreaData = [];
+    // nowAreaData & allTimeData都有重新賦予值，就不需要做初始化
 
-    // 接收到 目前的區域位置，再去找出相對應的資料
-    this.nowAreaData = this.allWeatherData.filter(item => item.LocationName == nowAreaName);
-    this.nowAreaData = this.nowAreaData[0].WeatherElement;
-    // 取出全部時間列表 - 用風速開始，因為風速後面的時間都是三小時一次
-    this.nowAreaData[5].Time.forEach((times: any) => {
-      this.allTimeData.push(times.DataTime);
-    });
+    // 接收到 目前的區域位置，再去找出相對應的資料，因為 find 只回傳一筆，所以可以直接這樣子寫
+    this.nowAreaData = this.allWeatherData.find(item => item.LocationName == nowAreaName).WeatherElement;
+
+    // 取出全部時間列表 - 用風速開始，因為風速後面的時間都是三小時一次，map的用處就是將新的值取出來變成一個新的陣列了，就不需要做foreach跟map
+    this.allTimeData = this.nowAreaData[5].Time.map((t: any) => t.DataTime);
+
     // 以上取出該區域的全部資料　＆　全部時間列表
 
     // 取出年分，暫不考慮跨年分
-    this.year = this.nowAreaData[5].Time[0].DataTime.split("T")[0].slice(0, 4)
+    this.year = this.allTimeData[0].split("T")[0].slice(0, 4);
 
-    // 先取出日期列表
-    this.getFullDay();
-
-    // 完成所有時間/日期計算後
+    // 先取出日期列表，並做初始化
+    this.allDay = this.getFullDay(this.allTimeData);
     this.nowDay = this.allDay[0];
+
+    // 先取出日期列表，並做初始化
+    this.allTime = this.getFullTime(this.allTimeData, this.nowDay);
     this.nowTime = this.allTime[0];
 
-    // 更新一次完整時間
+    // 將日期組回來 & 呼叫更新
     this.getFullNowTime();
   }
 
